@@ -30,16 +30,26 @@ class MotionSensorLight:
         self.light_on = False
 
     def on_motion_detected(self, detection_pin):
-        self.last_turned_on = datetime.now()
-        if not self.light_on:
-            self.turn_on()
+        # print("motion detected")
+
+        if self.light_on:
+            # print("light already on")
+            self.last_turned_on = datetime.now()
+        else:  # light is off
+            time.sleep(0.75)
+            if GPIO.input(detection_pin):
+                self.last_turned_on = datetime.now()
+                self.turn_on()
+            else:
+                # print("pin not high, not turning light on")
+                pass
 
 try:
     light = MotionSensorLight()
     while True:
         if light.light_on and light.last_turned_on + timedelta(minutes=3) < datetime.now():
             light.turn_off()
-        time.sleep(1)
+        time.sleep(0.25)
 
 except KeyboardInterrupt:
     GPIO.cleanup()
